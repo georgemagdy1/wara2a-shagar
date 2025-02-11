@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام تداول المنتجات الزراعية</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Login/Register Form -->
+        <div id="authView" class="auth-container">
+            <div class="auth-box animate-in">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" onclick="switchAuthTab('login')">تسجيل الدخول</button>
+                    <button class="auth-tab" onclick="switchAuthTab('register')">تسجيل جديد</button>
+                </div>
+                
+                <!-- Login Form -->
+                <div id="loginSection" class="auth-form">
+                    <h2 style="text-align: center; margin-bottom: 30px;">
+                        <i class="fas fa-leaf" style="color: var(--primary-color); font-size: 48px; margin-bottom: 15px;"></i>
+                        <br>تسجيل الدخول
+                    </h2>
+                    <form id="loginForm" onsubmit="handleLogin(event)">
+                        <div class="form-group">
+                            <label><i class="fas fa-envelope"></i> البريد الإلكتروني</label>
+                            <input type="email" name="email" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-lock"></i> كلمة المرور</label>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-user-tag"></i> نوع الحساب</label>
+                            <select name="role" class="form-control" required>
+                                <option value="farmer">فلاح</option>
+                                <option value="merchant">تاجر</option>
+                                <option value="consumer">مستهلك</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn">
+                            <i class="fas fa-sign-in-alt"></i>
+                            دخول
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Registration Form -->
+                <div id="registerSection" class="auth-form" style="display: none;">
+                    <h2 style="text-align: center; margin-bottom: 30px;">
+                        <i class="fas fa-user-plus" style="color: var(--primary-color); font-size: 48px; margin-bottom: 15px;"></i>
+                        <br>تسجيل جديد
+                    </h2>
+                    <form id="registerForm" onsubmit="handleRegister(event)">
+                        <div class="form-group">
+                            <label><i class="fas fa-user"></i> الاسم</label>
+                            <input type="text" name="name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-envelope"></i> البريد الإلكتروني</label>
+                            <input type="email" name="email" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-lock"></i> كلمة المرور</label>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-lock"></i> تأكيد كلمة المرور</label>
+                            <input type="password" name="confirmPassword" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-user-tag"></i> نوع الحساب</label>
+                            <select name="role" class="form-control" required>
+                                <option value="farmer">فلاح</option>
+                                <option value="merchant">تاجر</option>
+                                <option value="consumer">مستهلك</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn">
+                            <i class="fas fa-user-plus"></i>
+                            تسجيل
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rest of the existing content remains the same -->
+        <div id="dashboardView" style="display: none;">
+            <div class="nav">
+                <h2 id="welcomeMessage"></h2>
+                <button onclick="logout()" class="btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    تسجيل الخروج
+                </button>
+            </div>
+            <div id="mainContent" class="container"></div>
+        </div>
+    </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
