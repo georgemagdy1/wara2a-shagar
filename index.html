@@ -4,13 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نظام تداول المنتجات الزراعية</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="app">
-        <!-- Login/Register Form -->
         <div id="authView" class="auth-container">
             <div class="auth-box animate-in">
                 <div class="auth-tabs">
@@ -18,7 +16,6 @@
                     <button class="auth-tab" onclick="switchAuthTab('register')">تسجيل جديد</button>
                 </div>
                 
-                <!-- Login Form -->
                 <div id="loginSection" class="auth-form">
                     <h2 style="text-align: center; margin-bottom: 30px;">
                         <i class="fas fa-leaf" style="color: var(--primary-color); font-size: 48px; margin-bottom: 15px;"></i>
@@ -39,6 +36,7 @@
                                 <option value="farmer">فلاح</option>
                                 <option value="merchant">تاجر</option>
                                 <option value="consumer">مستهلك</option>
+                                <option value="factory">مصنع</option>
                             </select>
                         </div>
                         <button type="submit" class="btn">
@@ -48,7 +46,6 @@
                     </form>
                 </div>
 
-                <!-- Registration Form -->
                 <div id="registerSection" class="auth-form" style="display: none;">
                     <h2 style="text-align: center; margin-bottom: 30px;">
                         <i class="fas fa-user-plus" style="color: var(--primary-color); font-size: 48px; margin-bottom: 15px;"></i>
@@ -64,6 +61,11 @@
                             <input type="email" name="email" class="form-control" required>
                         </div>
                         <div class="form-group">
+                            <label><i class="fas fa-phone"></i> رقم الهاتف</label>
+                            <input type="tel" name="phone" class="form-control" pattern="[0-9]{11}" required
+                                   title="الرجاء إدخال رقم هاتف صحيح مكون من 11 رقم">
+                        </div>
+                        <div class="form-group">
                             <label><i class="fas fa-lock"></i> كلمة المرور</label>
                             <input type="password" name="password" class="form-control" required>
                         </div>
@@ -77,6 +79,7 @@
                                 <option value="farmer">فلاح</option>
                                 <option value="merchant">تاجر</option>
                                 <option value="consumer">مستهلك</option>
+                                <option value="factory">مصنع</option>
                             </select>
                         </div>
                         <button type="submit" class="btn">
@@ -88,7 +91,6 @@
             </div>
         </div>
 
-        <!-- Rest of the existing content remains the same -->
         <div id="dashboardView" style="display: none;">
             <div class="nav">
                 <h2 id="welcomeMessage"></h2>
@@ -99,8 +101,17 @@
             </div>
             <div id="mainContent" class="container"></div>
         </div>
+
+        <div class="container" style="display: none;">
+            <div class="card animate-in">
+                <h3><i class="fas fa-star"></i> تقييمات الفلاح</h3>
+                <div id="farmerRatings">
+                    <!-- سيتم ملء التقييمات هنا -->
+                </div>
+            </div>
+        </div>
     </div>
 
-  <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
