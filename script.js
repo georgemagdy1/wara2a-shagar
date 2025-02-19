@@ -1,11 +1,57 @@
 // Test users
 const users = [
-    { email: 'f1@gmail.com', password: '123', role: 'farmer', name: 'أحمد المزارع', phone: '01234567890', rating: 4.5, numRatings: 12 },
+    { 
+        email: 'f1@gmail.com', 
+        password: '123', 
+        role: 'farmer', 
+        name: 'أحمد المزارع', 
+        phone: '01234567890', 
+        rating: 4.5, 
+        numRatings: 12,
+        ratingHistory: [
+            {level: 'first', value: 4.2, date: '2023-09-15'},
+            {level: 'second', value: 4.5, date: '2023-12-20'},
+            {level: 'third', value: 4.6, date: '2024-01-25'},
+            {level: 'final', value: 4.7, date: '2024-02-15'}
+        ]
+    },
     { email: 'm1@gmail.com', password: '123', role: 'merchant', name: 'محمد التاجر', phone: '01234567891' },
     { email: 'c1@gmail.com', password: '123', role: 'consumer', name: 'علي المستهلك', phone: '01234567892' },
     { email: 'fa@gmail.com', password: '123', role: 'factory', name: 'مصنع الخير', phone: '01234567893' }
-];;
-
+];
+function rateFarmer(farmerId, rating, ratingLevel) {
+    const farmer = users.find(u => u.id === farmerId);
+    if (!farmer) return;
+    
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Initialize rating history if it doesn't exist
+    if (!farmer.ratingHistory) {
+        farmer.ratingHistory = [];
+    }
+    
+    // Add new rating to history
+    farmer.ratingHistory.push({
+        level: ratingLevel,
+        value: rating,
+        date: today
+    });
+    
+    // Update overall rating
+    const totalRatings = farmer.ratingHistory.length;
+    const sumRatings = farmer.ratingHistory.reduce((sum, item) => sum + item.value, 0);
+    farmer.rating = (sumRatings / totalRatings).toFixed(1);
+    farmer.numRatings = totalRatings;
+    
+    // Update the UI to reflect changes
+    showNotification(`تم تقييم الفلاح ${farmer.name} بنجاح`);
+    
+    // If user is on buyer dashboard, refresh it
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (currentUser && (currentUser.role === 'merchant' || currentUser.role === 'consumer' || currentUser.role === 'factory')) {
+        showBuyerDashboard(currentUser);
+    }
+}
 // Sample data
 let products = [
     { id: 1, farmerId: 1, product: 'طماطم', description: 'طماطم طازجة من المزرعة', quantity: 1000, unit: 'kg', price: 10, available: true, imageUrl: 'images/tomato.jpg', deliveryType: 'farm' },
@@ -25,9 +71,15 @@ let orders = [
         status: 'pending', 
         date: '2024-02-09',
         deliveryDays: null,
-        expectedDeliveryDate: null
+        expectedDeliveryDate: null,
+        deliveryStatus: null,  // new field for tracking delivery
+        rating: null,          // new field for rating
+        ratingLevel: null,     // first, second, third, final
+        ratingDate: null,      // when the rating was given
+        cycleStartDate: null   // to track 6-month/1-year cycle
     }
 ];
+
 
 function handleLogin(event) {
     event.preventDefault();
@@ -224,6 +276,7 @@ function showFarmerDashboard(user) {
                                         <p><i class="fas fa-truck"></i> التسليم: ${formatDate(o.expectedDeliveryDate)}</p>
                                     ` : '-'}
                                 </td>
+                                
                                 <td>
                                     ${o.status === 'pending' ? `
                                         <button onclick="updateOrderStatus(${o.id}, 'accepted')" class="btn" style="background: var(--success-color); margin-left: 5px;">
@@ -234,15 +287,103 @@ function showFarmerDashboard(user) {
                                         </button>
                                     ` : '-'}
                                 </td>
+                                
                             </tr>
                         `;
                     }).join('')}
                 </tbody>
             </table>
         </div>
+        
     `;
 }
-
+function viewFarmerRatings(farmerId) {
+    const farmer = users.find(u => u.id === farmerId);
+    if (!farmer || !farmer.ratingHistory) {
+        showNotification('لا توجد تقييمات لهذا الفلاح', 'warning');
+        return;
+    }
+    
+    // Create modal dialog
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>تقييمات الفلاح: ${farmer.name}</h2>
+            <div class="overall-rating">
+                <p>التقييم العام: ${getRatingStars(farmer.rating)}</p>
+                <p>عدد التقييمات: ${farmer.numRatings}</p>
+            </div>
+            <div class="rating-history">
+                <h3>سجل التقييمات</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>المستوى</th>
+                            <th>التقييم</th>
+                            <th>التاريخ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${farmer.ratingHistory.map(rating => `
+                            <tr>
+                                <td>${getRatingLevelText(rating.level)}</td>
+                                <td>${getRatingStars(rating.value)}</td>
+                                <td>${formatDate(rating.date)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    
+    // Add modal styles
+    const styleElement = document.createElement('style');
+    styleElement.textContent = `
+        .modal {
+            display: block;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            animation: modalFadeIn 0.3s;
+        }
+        
+        .close {
+            color: #aaa;
+            float: left;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: black;
+        }
+        
+        @keyframes modalFadeIn {
+            from {opacity: 0; transform: translateY(-50px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+    `;
+    document.head.appendChild(styleElement);
+}
 function getDeliveryTypeDisplay(type) {
     switch(type) {
         case 'farm': return 'تسليم على الأرض';
@@ -295,7 +436,7 @@ function showBuyerDashboard(user) {
 
     // بناء HTML لجدول الطلبات مع معلومات التواصل والتسليم
     const ordersTableHTML = `
-        <div class="card animate-in">
+        <     <div class="card animate-in">
             <h3><i class="fas fa-history"></i> ${user.role === 'consumer' ? 'طلباتي' : 'طلبات الجملة'}</h3>
             <table>
                 <thead>
@@ -306,10 +447,13 @@ function showBuyerDashboard(user) {
                         <th>الحالة</th>
                         <th>معلومات التواصل</th>
                         <th>موعد التسليم</th>
+                        <th>التقييم</th>
                     </tr>
                 </thead>
                 <tbody>
-                    ${myOrders.map(o => `
+                    ${myOrders.map(o => {
+                        const farmer = users.find(u => u.id === o.farmerId);
+                        return `
                         <tr>
                             <td><i class="fas fa-${getProductIcon(o.product)}"></i> ${o.product}</td>
                             <td>${o.quantity} كجم</td>
@@ -319,6 +463,7 @@ function showBuyerDashboard(user) {
                                 ${o.status === 'accepted' ? `
                                     <div class="contact-info">
                                         <p><i class="fas fa-phone"></i> رقم الفلاح: ${o.farmerPhone || 'غير متوفر'}</p>
+                                        <p><i class="fas fa-user"></i> اسم الفلاح: ${farmer ? farmer.name : 'غير متوفر'}</p>
                                     </div>
                                 ` : '-'}
                             </td>
@@ -326,12 +471,51 @@ function showBuyerDashboard(user) {
                                 ${o.status === 'accepted' ? `
                                     <div class="delivery-info">
                                         ${o.deliveryDays ? `<p><i class="fas fa-clock"></i> التوصيل خلال: ${o.deliveryDays} أيام</p>` : ''}
-                                        ${o.expectedDeliveryDate ? `<p><i class="fas fa-calendar-check"></i> موعد التسليم: ${formatDate(o.expectedDeliveryDate)}</p>` : ''}
+                                        ${o.expectedDeliveryDate ? `
+                                            <p><i class="fas fa-calendar-check"></i> موعد التسليم: ${formatDate(o.expectedDeliveryDate)}</p>
+                                            <p class="delivery-status ${getDeliveryStatusClass(o)}">
+                                                <i class="fas fa-${getDeliveryStatusIcon(o)}"></i>
+                                                ${getDeliveryStatusText(o)}
+                                            </p>
+                                        ` : ''}
                                     </div>
                                 ` : '-'}
                             </td>
+                            <td>
+                                ${o.status === 'accepted' && o.expectedDeliveryDate && new Date(o.expectedDeliveryDate) < new Date() ? `
+                                    ${o.rating ? `
+                                        <div class="rating-display">
+                                            <p><strong>تقييمك:</strong> ${getRatingStars(o.rating)}</p>
+                                            <p><strong>المستوى:</strong> ${getRatingLevelText(o.ratingLevel)}</p>
+                                            <p><strong>تاريخ التقييم:</strong> ${formatDate(o.ratingDate)}</p>
+                                        </div>
+                                    ` : `
+                                        <div class="rating-form">
+                                            <p><strong>قيم الفلاح:</strong></p>
+                                            <div class="rating-stars">
+                                                <i class="far fa-star" onclick="setRating(${o.id}, 1)"></i>
+                                                <i class="far fa-star" onclick="setRating(${o.id}, 2)"></i>
+                                                <i class="far fa-star" onclick="setRating(${o.id}, 3)"></i>
+                                                <i class="far fa-star" onclick="setRating(${o.id}, 4)"></i>
+                                                <i class="far fa-star" onclick="setRating(${o.id}, 5)"></i>
+                                            </div>
+                                            <div class="rating-level-selector">
+                                                <select id="ratingLevel-${o.id}" class="form-control" style="margin-top: 5px;">
+                                                    <option value="first">التقييم الأول</option>
+                                                    <option value="second">التقييم الثاني</option>
+                                                    <option value="third">التقييم الثالث</option>
+                                                    <option value="final">التقييم النهائي</option>
+                                                </select>
+                                            </div>
+                                            <button class="btn btn-sm" onclick="submitRating(${o.id})">
+                                                <i class="fas fa-paper-plane"></i> إرسال التقييم
+                                            </button>
+                                        </div>
+                                    `}
+                                ` : o.status === 'accepted' ? `الرجاء الانتظار حتى اكتمال التوصيل للتقييم` : '-'}
+                            </td>
                         </tr>
-                    `).join('')}
+                    `}).join('')}
                 </tbody>
             </table>
         </div>
@@ -456,6 +640,166 @@ function showBuyerDashboard(user) {
 
     // عرض المحتوى النهائي
     content.innerHTML = dashboardHTML;
+}
+function getRatingStars(rating) {
+    const fullStars = Math.floor(rating);
+    const halfStar = rating % 1 >= 0.5;
+    const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+    
+    let stars = '';
+    for (let i = 0; i < fullStars; i++) {
+        stars += '<i class="fas fa-star" style="color: gold;"></i>';
+    }
+    if (halfStar) {
+        stars += '<i class="fas fa-star-half-alt" style="color: gold;"></i>';
+    }
+    for (let i = 0; i < emptyStars; i++) {
+        stars += '<i class="far fa-star" style="color: #ccc;"></i>';
+    }
+    
+    return stars + ` (${rating})`;
+}
+function getRatingLevelText(level) {
+    switch(level) {
+        case 'first': return 'التقييم الأول';
+        case 'second': return 'التقييم الثاني';
+        case 'third': return 'التقييم الثالث';
+        case 'final': return 'التقييم النهائي';
+        default: return 'غير محدد';
+    }
+}
+
+// Track rating for order temporarily before submission
+let tempRatings = {};
+function setRating(orderId, rating) {
+    tempRatings[orderId] = rating;
+    
+    // Update stars visually
+    const stars = document.querySelectorAll(`.rating-form .rating-stars i`);
+    for (let i = 0; i < stars.length; i++) {
+        if (i < rating) {
+            stars[i].className = 'fas fa-star';
+            stars[i].style.color = 'gold';
+        } else {
+            stars[i].className = 'far fa-star';
+            stars[i].style.color = '#ccc';
+        }
+    }
+}
+
+function submitRating(orderId) {
+    if (!tempRatings[orderId]) {
+        showNotification('الرجاء اختيار تقييم أولاً', 'error');
+        return;
+    }
+    
+    const order = orders.find(o => o.id === orderId);
+    const levelSelect = document.getElementById(`ratingLevel-${orderId}`);
+    const ratingLevel = levelSelect.value;
+    
+    if (!order) return;
+    
+    // Check if rating cycle is valid (max 1 year)
+    const farmer = users.find(u => u.id === order.farmerId);
+    if (farmer && farmer.ratingHistory && farmer.ratingHistory.length > 0) {
+        const lastRating = farmer.ratingHistory.find(r => r.level === ratingLevel);
+        if (lastRating) {
+            const lastRatingDate = new Date(lastRating.date);
+            const today = new Date();
+            const diffMonths = (today.getFullYear() - lastRatingDate.getFullYear()) * 12 + 
+                               (today.getMonth() - lastRatingDate.getMonth());
+            
+            if (diffMonths < 6) {
+                showNotification(`لا يمكن إضافة تقييم من نفس المستوى قبل مرور 6 أشهر على الأقل`, 'error');
+                return;
+            } else if (diffMonths > 12) {
+                showNotification(`تم تجاوز الحد الأقصى للدورة (سنة واحدة). سيتم إعادة تعيين التقييمات السابقة`, 'warning');
+                // Reset previous ratings of this level
+                farmer.ratingHistory = farmer.ratingHistory.filter(r => r.level !== ratingLevel);
+            }
+        }
+    }
+    
+    // Update order with rating
+    order.rating = tempRatings[orderId];
+    order.ratingLevel = ratingLevel;
+    order.ratingDate = new Date().toISOString().split('T')[0];
+    
+    // Update farmer's overall rating
+    rateFarmer(order.farmerId, order.rating, ratingLevel);
+    
+    // Clear temporary ratings
+    delete tempRatings[orderId];
+    
+    // Refresh the dashboard
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    showBuyerDashboard(currentUser);
+}
+function getDeliveryStatusText(order) {
+    if (!order.expectedDeliveryDate) return '';
+    
+    const today = new Date();
+    const deliveryDate = new Date(order.expectedDeliveryDate);
+    
+    if (order.deliveryStatus === 'completed') {
+        return 'تم التسليم';
+    } else if (order.deliveryStatus === 'delayed') {
+        return 'تأخير في التسليم';
+    } else if (today > deliveryDate) {
+        if (Math.floor((today - deliveryDate) / (1000 * 60 * 60 * 24)) <= 3) {
+            return 'متأخر (أقل من 3 أيام)';
+        } else {
+            return 'متأخر بشكل كبير';
+        }
+    } else if (today.toDateString() === deliveryDate.toDateString()) {
+        return 'اليوم';
+    } else {
+        const diffDays = Math.ceil((deliveryDate - today) / (1000 * 60 * 60 * 24));
+        return `متبقي ${diffDays} يوم`;
+    }
+}
+
+function getDeliveryStatusClass(order) {
+    if (!order.expectedDeliveryDate) return '';
+    
+    const today = new Date();
+    const deliveryDate = new Date(order.expectedDeliveryDate);
+    
+    if (order.deliveryStatus === 'completed') {
+        return 'status-completed';
+    } else if (order.deliveryStatus === 'delayed') {
+        return 'status-delayed';
+    } else if (today > deliveryDate) {
+        const diffDays = Math.floor((today - deliveryDate) / (1000 * 60 * 60 * 24));
+        if (diffDays <= 3) {
+            return 'status-slight-delay';
+        } else {
+            return 'status-major-delay';
+        }
+    } else if (today.toDateString() === deliveryDate.toDateString()) {
+        return 'status-today';
+    } else {
+        return 'status-pending';
+    }
+}
+
+function getDeliveryStatusIcon(order) {
+    if (!order.expectedDeliveryDate) return '';
+    
+    const today = new Date();
+    const deliveryDate = new Date(order.expectedDeliveryDate);
+    
+    if (order.deliveryStatus === 'completed') {
+        return 'check-circle';
+    } else if (order.deliveryStatus === 'delayed') {
+        return 'exclamation-triangle';
+    } else if (today > deliveryDate) {
+        return 'clock';
+    } else if (today.toDateString() === deliveryDate.toDateString()) {
+        return 'truck';
+    } else {
+        return 'calendar-alt';
+    }
 }
 function getProductIcon(product) {
     const icons = {
@@ -619,6 +963,13 @@ function updateOrderStatus(orderId, status) {
             const deliveryDate = new Date();
             deliveryDate.setDate(deliveryDate.getDate() + parseInt(deliveryDays));
             order.expectedDeliveryDate = deliveryDate.toISOString().split('T')[0];
+            
+            // Set initial delivery status
+            order.deliveryStatus = 'pending';
+            order.cycleStartDate = new Date().toISOString().split('T')[0];
+        } else if (status === 'delivered') {
+            order.deliveryStatus = 'completed';
+            // Enable rating capability
         }
         
         order.status = status;
@@ -633,8 +984,9 @@ function updateOrderStatus(orderId, status) {
         }
 
         showFarmerDashboard(user);
-        showNotification(`تم ${status === 'accepted' ? 'قبول' : 'رفض'} الطلب بنجاح`);
+        showNotification(`تم ${getStatusActionText(status)} الطلب بنجاح`);
     }
+
 }
 
 // دالة مساعدة لتسجيل الخروج
@@ -653,6 +1005,80 @@ window.onload = function() {
         showDashboard(JSON.parse(currentUser));
     }
 };
+function getStatusActionText(status) {
+    switch(status) {
+        case 'accepted': return 'قبول';
+        case 'rejected': return 'رفض';
+        case 'delivered': return 'تأكيد تسليم';
+        case 'delayed': return 'تسجيل تأخير';
+        default: return 'تحديث حالة';
+    }
+}
+document.addEventListener('DOMContentLoaded', function() {
+    const styleElement = document.createElement('style');
+    styleElement.textContent = `
+        .rating-display, .rating-form {
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        
+        .rating-stars {
+            font-size: 1.2em;
+            direction: ltr;
+            text-align: center;
+            margin: 10px 0;
+        }
+        
+        .rating-stars i {
+            cursor: pointer;
+            margin: 0 2px;
+        }
+        
+        .rating-level-selector {
+            margin: 10px 0;
+        }
+        
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.9em;
+        }
+        
+        .delivery-status {
+            font-weight: bold;
+            padding: 3px 7px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 5px;
+        }
+        
+        .status-completed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-delayed, .status-major-delay {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-slight-delay {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-today {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+        
+        .status-pending {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+    `;
+    document.head.appendChild(styleElement);
+});
 // Add animation classes
 document.addEventListener('DOMContentLoaded', function() {
     const elements = document.querySelectorAll('.animate-in');
