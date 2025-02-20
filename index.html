@@ -6,6 +6,7 @@
     <title>نظام تداول المنتجات الزراعية</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+
 </head>
 <body>
     <div id="app">
@@ -111,7 +112,33 @@
             </div>
         </div>
     </div>
+<div class="loading-container">
+        <div class="loading-box">
+            <div class="loading-icon">
+                <i class="fas fa-leaf leaf"></i>
+            </div>
+            <div class="loading-text">
+                <div class="loading-dots">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+                جاري التحميل
+            </div>
+            <div class="progress-bar">
+                <div class="progress"></div>
+            </div>
+           
+        </div>
+    </div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 3000);
+        });
+    </script>
     <script src="script.js"></script>
 </body>
 </html>
