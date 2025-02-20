@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<!-- Head section remains the same until the script -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جاري التحميل</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Previous CSS styles remain the same -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500&display=swap');
+
+        :root {
+            --primary-color: #2ecc71;
+            --secondary-color: #27ae60;
+            --text-color: #2c3e50;
+            --background-gradient-start: #66bb6a;
+            --background-gradient-end: #43a047;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tajawal', Arial, sans-serif;
+        }
+
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            width: 100%;
+            background: linear-gradient(135deg, var(--background-gradient-start) 0%, var(--background-gradient-end) 100%);
+            transition: opacity 0.5s ease-in-out;
+            padding: 20px;
+        }
+
+        .loading-container.hidden {
+            opacity: 0;
+        }
+
+        .loading-box {
+            background: white;
+            padding: clamp(20px, 5vw, 40px);
+            border-radius: clamp(15px, 3vw, 20px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            animation: float 3s ease-in-out infinite;
+            width: clamp(280px, 90%, 400px);
+        }
+
+        .loading-icon {
+            position: relative;
+            width: clamp(60px, 15vw, 100px);
+            height: clamp(60px, 15vw, 100px);
+            margin: 0 auto 20px;
+        }
+
+        .leaf {
+            color: var(--primary-color);
+            font-size: clamp(32px, 8vw, 48px);
+            animation: spin 2s linear infinite;
+        }
+
+        .loading-text {
+            color: var(--text-color);
+            font-size: clamp(18px, 5vw, 24px);
+            margin-top: clamp(15px, 4vw, 20px);
+            font-weight: 500;
+        }
+
+        .loading-dots {
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .dot {
+            display: inline-block;
+            width: clamp(6px, 1.5vw, 8px);
+            height: clamp(6px, 1.5vw, 8px);
+            margin: 0 4px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            animation: dots 1.4s ease-in-out infinite;
+        }
+
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        .progress-bar {
+            width: 100%;
+            max-width: clamp(180px, 50vw, 200px);
+            height: clamp(4px, 1vw, 6px);
+            background: #eee;
+            border-radius: 6px;
+            margin: clamp(15px, 4vw, 20px) auto 0;
+            overflow: hidden;
+        }
+
+        .progress {
+            width: 100%;
+            height: 100%;
+            background: var(--primary-color);
+            border-radius: 6px;
+            animation: progress 2s ease-in-out infinite;
+            transform-origin: left;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes dots {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+        }
+
+        @keyframes progress {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* تحسينات للشاشات الصغيرة جداً */
+        @media (max-width: 320px) {
+            .loading-box {
+                padding: 15px;
+            }
+
+            .loading-text {
+                font-size: 16px;
+            }
+
+            .loading-icon {
+                width: 50px;
+                height: 50px;
+            }
+
+            .leaf {
+                font-size: 28px;
+            }
+        }
+
+        /* تحسينات للشاشات الكبيرة */
+        @media (min-width: 1200px) {
+            .loading-box {
+                padding: 50px;
+                max-width: 500px;
+            }
+
+            .loading-text {
+                font-size: 28px;
+            }
+        }
+
+        /* تحسينات للأجهزة ذات الشاشات العالية */
+        @media (min-height: 1000px) {
+            .loading-icon {
+                margin-bottom: 30px;
+            }
+
+            .progress-bar {
+                margin-top: 30px;
+            }
+        }
+
+        /* تحسينات للشاشات العريضة */
+        @media (orientation: landscape) and (max-height: 500px) {
+            .loading-box {
+                padding: 20px 40px;
+            }
+
+            .loading-icon {
+                margin-bottom: 10px;
+            }
+
+            .progress-bar {
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-container">
+        <div class="loading-box">
+            <div class="loading-icon">
+                <i class="fas fa-leaf leaf"></i>
+            </div>
+            <div class="loading-text">
+                <div class="loading-dots">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+                جاري التحميل
+            </div>
+            <div class="progress-bar">
+                <div class="progress"></div>
+            </div>
+           
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
