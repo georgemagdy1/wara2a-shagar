@@ -854,7 +854,7 @@ table {
 
 /* Responsive Buttons */
 .btn {
-    padding: 0.75rem 1.5rem;
+    padding: 0.75rem 8.5rem;
     font-size: 1rem;
     width: auto;
     min-width: max-content;
@@ -862,7 +862,7 @@ table {
 
 @media (max-width: 480px) {
     .btn {
-        padding: 0.5rem 1rem;
+        padding: 0.5rem 8rem;
         font-size: 0.875rem;
     }
 }

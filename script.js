@@ -19,6 +19,12 @@ const users = [
     { email: 'c1@gmail.com', password: '123', role: 'consumer', name: 'علي المستهلك', phone: '01234567892' },
     { email: 'fa@gmail.com', password: '123', role: 'factory', name: 'مصنع الخير', phone: '01234567893' }
 ];
+const PRODUCT_GRADES = {
+    'first': 'الدرجة الأولى',
+    'second': 'الدرجة الثانية',
+    'third': 'الدرجة الثالثة',
+    'other': 'درجة أخرى'
+};
 function rateFarmer(farmerId, rating, ratingLevel) {
     const farmer = users.find(u => u.id === farmerId);
     if (!farmer) return;
@@ -54,9 +60,12 @@ function rateFarmer(farmerId, rating, ratingLevel) {
 }
 // Sample data
 let products = [
-    { id: 1, farmerId: 1, product: 'طماطم', description: 'طماطم طازجة من المزرعة', quantity: 1000, unit: 'kg', price: 10, available: true, imageUrl: 'images/tomato.jpg', deliveryType: 'farm' },
-    { id: 2, farmerId: 1, product: 'خيار', description: 'خيار طازج عالي الجودة', quantity: 500, unit: 'kg', price: 8, available: true, imageUrl: 'images/cucumber.jpg', deliveryType: 'factory' },
-    { id: 3, farmerId: 1, product: 'بطاطس', description: 'بطاطس مصرية فاخرة', quantity: 2000, unit: 'kg', price: 12, available: true, imageUrl: 'images/potato.jpg', deliveryType: 'buyer' }
+    { id: 1, farmerId: 1, product: 'طماطم', description: 'طماطم طازجة من المزرعة', quantity: 1000, unit: 'kg', price: 10, available: true, imageUrl: 'images/tomato.jpg', deliveryType: 'farm', grade: 'first',
+        cycleStartDate: '2024-02-20' },
+    { id: 2, farmerId: 1, product: 'خيار', description: 'خيار طازج عالي الجودة', quantity: 500, unit: 'kg', price: 8, available: true, imageUrl: 'images/cucumber.jpg', deliveryType: 'factory', grade: 'first', // Added grade field
+        cycleStartDate: '2024-02-20' },
+    { id: 3, farmerId: 1, product: 'بطاطس', description: 'بطاطس مصرية فاخرة', quantity: 2000, unit: 'kg', price: 12, available: true, imageUrl: 'images/potato.jpg', deliveryType: 'buyer' , grade: 'first', // Added grade field
+        cycleStartDate: '2024-02-20'}
 ];
 
 let orders = [
@@ -177,6 +186,24 @@ function showFarmerDashboard(user) {
                     <label><i class="fas fa-info-circle"></i> تفاصيل المنتج</label>
                     <textarea name="description" class="form-control" rows="3" required placeholder="أدخل وصفًا تفصيليًا للمنتج..."></textarea>
                 </div>
+                 <div class="form-group">
+                    <label><i class="fas fa-star"></i> درجة المنتج</label>
+                    <select name="grade" class="form-control" required>
+                        <option value="first">الدرجة الأولى</option>
+                        <option value="second">الدرجة الثانية</option>
+                        <option value="third">الدرجة الثالثة</option>
+                        <option value="other">درجة أخرى</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-calendar"></i> تاريخ بداية الدورة</label>
+                    <input type="date" 
+                           name="cycleStartDate" 
+                           class="form-control" 
+                           required
+                           min="${new Date().toISOString().split('T')[0]}"
+                           max="${new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0]}">
+                </div>
                 <div class="form-group">
                     <label><i class="fas fa-weight"></i> الكمية</label>
                     <div style="display: flex; gap: 10px;">
@@ -228,6 +255,8 @@ function showFarmerDashboard(user) {
                             <p><i class="fas fa-weight"></i> الكمية: ${p.quantity} ${getUnitDisplay(p.unit)}</p>
                             <p><i class="fas fa-tag"></i> السعر: ${p.price} جنيه لكل ${getUnitDisplay(p.unit)}</p>
                             <p><i class="fas fa-truck"></i> التوصيل: ${getDeliveryTypeDisplay(p.deliveryType)}</p>
+                              <p><i class="fas fa-star"></i> الدرجة: ${PRODUCT_GRADES[p.grade]}</p>
+                                <p><i class="fas fa-calendar"></i> تاريخ بداية الدورة: ${formatDate(p.cycleStartDate)}</p>
                             <p>
                                 <span class="status ${p.available ? 'status-accepted' : 'status-rejected'}">
                                     <i class="fas fa-${p.available ? 'check-circle' : 'times-circle'}"></i>
@@ -296,6 +325,14 @@ function showFarmerDashboard(user) {
         </div>
         
     `;
+    const productsDisplayHTML = `
+    <div class="product-card">
+        <!-- ... existing product info ... -->
+        <p><i class="fas fa-star"></i> الدرجة: ${PRODUCT_GRADES[p.grade]}</p>
+        <p><i class="fas fa-calendar"></i> تاريخ بداية الدورة: ${formatDate(p.cycleStartDate)}</p>
+        <!-- ... rest of the product display ... -->
+    </div>
+`;
 }
 function viewFarmerRatings(farmerId) {
     const farmer = users.find(u => u.id === farmerId);
@@ -538,6 +575,8 @@ function showBuyerDashboard(user) {
                                 <p><i class="fas fa-weight"></i> الكمية المتاحة: ${p.quantity} ${p.unit || 'كجم'}</p>
                                 <p><i class="fas fa-tag"></i> السعر: ${p.price} جنيه لكل ${p.unit || 'كجم'}</p>
                                 <p><i class="fas fa-truck"></i> التوصيل: ${getDeliveryTypeDisplay(p.deliveryType)}</p>
+                                <p><i class="fas fa-star"></i> الدرجة: ${PRODUCT_GRADES[p.grade]}</p>
+                                <p><i class="fas fa-calendar"></i> تاريخ بداية الدورة: ${formatDate(p.cycleStartDate)}</p>
                                 <form onsubmit="placeOrder(event, ${p.id})" class="form-group">
                                     <label>الكمية المطلوبة (الحد الأقصى 5 ${p.unit || 'كجم'})</label>
                                     <input type="number" 
@@ -557,6 +596,7 @@ function showBuyerDashboard(user) {
                 </div>
             </div>
             ${ordersTableHTML}
+            
         `;
     } else if (user.role === 'merchant') {
         // عرض التاجر
@@ -575,6 +615,8 @@ function showBuyerDashboard(user) {
                                 <p><i class="fas fa-weight"></i> الكمية المتاحة: ${p.quantity} ${p.unit || 'كجم'}</p>
                                 <p><i class="fas fa-tag"></i> السعر: ${p.price} جنيه لكل ${p.unit || 'كجم'}</p>
                                 <p><i class="fas fa-truck"></i> التوصيل: ${getDeliveryTypeDisplay(p.deliveryType)}</p>
+                                <p><i class="fas fa-star"></i> الدرجة: ${PRODUCT_GRADES[p.grade]}</p>
+                                <p><i class="fas fa-calendar"></i> تاريخ بداية الدورة: ${formatDate(p.cycleStartDate)}</p>
                                 <form onsubmit="placeOrder(event, ${p.id})" class="form-group">
                                     <label>الكمية المطلوبة (الحد الأدنى 5 ${p.unit || 'كجم'})</label>
                                     <input type="number" 
@@ -615,6 +657,8 @@ function showBuyerDashboard(user) {
                                 <p><i class="fas fa-weight"></i> الكمية المتاحة: ${p.quantity} ${p.unit || 'كجم'}</p>
                                 <p><i class="fas fa-tag"></i> السعر: ${p.price} جنيه لكل ${p.unit || 'كجم'}</p>
                                 <p><i class="fas fa-truck"></i> التوصيل: ${getDeliveryTypeDisplay(p.deliveryType)}</p>
+                                <p><i class="fas fa-star"></i> الدرجة: ${PRODUCT_GRADES[p.grade]}</p>
+                                <p><i class="fas fa-calendar"></i> تاريخ بداية الدورة: ${formatDate(p.cycleStartDate)}</p>
                                 <form onsubmit="placeOrder(event, ${p.id})" class="form-group">
                                     <label>الكمية المطلوبة (الحد الأدنى 10 ${p.unit || 'كجم'})</label>
                                     <input type="number" 
@@ -842,6 +886,22 @@ function addProduct(event) {
     const productName = formData.get('product');
     const imageInput = document.querySelector('input[type="file"]');
     
+    // Get selected grade
+    const grade = formData.get('grade');
+    
+    // Get and validate cycle start date
+    const cycleStartDate = formData.get('cycleStartDate');
+    const today = new Date();
+    const selectedDate = new Date(cycleStartDate);
+    const oneYearFromToday = new Date();
+    oneYearFromToday.setFullYear(today.getFullYear() + 1);
+    
+    // Validate cycle date
+    if (selectedDate > oneYearFromToday) {
+        showNotification('تاريخ الدورة لا يمكن أن يتجاوز سنة من اليوم', 'error');
+        return;
+    }
+    
     let imageUrl = defaultImages[productName] || defaultImages.default;
     
     // If a file was uploaded, use its Data URL
@@ -858,7 +918,9 @@ function addProduct(event) {
                 unit: formData.get('unit'),
                 available: true,
                 imageUrl: e.target.result,
-                deliveryType: formData.get('deliveryType')
+                deliveryType: formData.get('deliveryType'),
+                grade: grade, // Add grade
+                cycleStartDate: cycleStartDate // Add cycle start date
             };
 
             products.push(newProduct);
@@ -880,7 +942,9 @@ function addProduct(event) {
             unit: formData.get('unit'),
             available: true,
             imageUrl: imageUrl,
-            deliveryType: formData.get('deliveryType')
+            deliveryType: formData.get('deliveryType'),
+            grade: grade, // Add grade
+            cycleStartDate: cycleStartDate // Add cycle start date
         };
 
         products.push(newProduct);
