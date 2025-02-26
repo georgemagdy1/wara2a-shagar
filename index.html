@@ -6,8 +6,79 @@
     <title>نظام تداول المنتجات الزراعية</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    
 </head>
 <body>
+    <!-- شاشة التحميل المتميزة -->
+    <div id="loadingScreen">
+        <div class="loading-container">
+            <!-- مشهد المزرعة المتحرك -->
+            <div class="farm-scene">
+                <!-- الشمس -->
+                <div class="sun">
+                    <div class="sunray"></div>
+                    <div class="sunray"></div>
+                    <div class="sunray"></div>
+                    <div class="sunray"></div>
+                    <div class="sunray"></div>
+                    <div class="sunray"></div>
+                    <div class="sunray"></div>
+                    <div class="sunray"></div>
+                </div>
+                
+                <!-- السحب -->
+                <div class="cloud cloud-1"></div>
+                <div class="cloud cloud-2"></div>
+                
+                <!-- قطرات الماء -->
+                <div class="drops-container">
+                    <div class="drop"></div>
+                    <div class="drop"></div>
+                    <div class="drop"></div>
+                    <div class="drop"></div>
+                </div>
+                
+                <!-- النباتات -->
+                <div class="plant plant-1">
+                    <div class="stem">
+                        <div class="leaf leaf-1"></div>
+                        <div class="leaf leaf-2 right"></div>
+                    </div>
+                </div>
+                
+                <div class="plant plant-2">
+                    <div class="stem">
+                        <div class="leaf leaf-1"></div>
+                        <div class="leaf leaf-2 right"></div>
+                    </div>
+                </div>
+                
+                <div class="plant plant-3">
+                    <div class="stem">
+                        <div class="leaf leaf-1"></div>
+                        <div class="leaf leaf-2 right"></div>
+                    </div>
+                </div>
+                
+                <!-- التربة -->
+                <div class="soil"></div>
+            </div>
+            
+            <!-- نص التحميل وشريط التقدم -->
+            <div class="loading-text">جاري تحميل نظام تداول المنتجات الزراعية</div>
+            <div class="loading-progress">
+                <div class="loading-bar"></div>
+            </div>
+            <div class="loading-percentage">0%</div>
+            
+            <!-- الشعار -->
+            <div class="logo">
+                <i class="fas fa-leaf"></i>
+                <div class="logo-text"></div>
+            </div>
+        </div>
+    </div>
+
     <div id="app">
         <div id="authView" class="auth-container">
             <div class="auth-box animate-in">
@@ -113,5 +184,5 @@
     </div>
 
     <script src="script.js"></script>
-</body>
+    <script src="loading.js"></script>
 </html>
