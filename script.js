@@ -60,11 +60,11 @@ function rateFarmer(farmerId, rating, ratingLevel) {
 }
 // Sample data
 let products = [
-    { id: 1, farmerId: 1, product: 'طماطم', description: 'طماطم طازجة من المزرعة', quantity: 1000, unit: 'kg', price: 10, available: true, imageUrl: 'images/tomato.jpg', deliveryType: 'farm', grade: 'first',
+    { id: 1, farmerId: 1, product: 'طماطم', description: 'طماطم طازجة من المزرعة', quantity: 1000, unit: 'kg', price: 10, available: true, imageUrl: 'tomato-ttomato-tayyar.jpg', deliveryType: 'farm', grade: 'first',
         cycleStartDate: '2024-02-20' },
-    { id: 2, farmerId: 1, product: 'خيار', description: 'خيار طازج عالي الجودة', quantity: 500, unit: 'kg', price: 8, available: true, imageUrl: 'images/cucumber.jpg', deliveryType: 'factory', grade: 'first', // Added grade field
+    { id: 2, farmerId: 1, product: 'خيار', description: 'خيار طازج عالي الجودة', quantity: 500, unit: 'kg', price: 8, available: true, imageUrl: 'Cucumbers.jpg', deliveryType: 'factory', grade: 'first', // Added grade field
         cycleStartDate: '2024-02-20' },
-    { id: 3, farmerId: 1, product: 'بطاطس', description: 'بطاطس مصرية فاخرة', quantity: 2000, unit: 'kg', price: 12, available: true, imageUrl: 'images/potato.jpg', deliveryType: 'buyer' , grade: 'first', // Added grade field
+    { id: 3, farmerId: 1, product: 'بطاطس', description: 'بطاطس مصرية فاخرة', quantity: 2000, unit: 'kg', price: 12, available: true, imageUrl: 'images (2).jpeg', deliveryType: 'buyer' , grade: 'first', // Added grade field
         cycleStartDate: '2024-02-20'}
 ];
 
